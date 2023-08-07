@@ -1,0 +1,9 @@
+__pycache__
+database/__pycache__
+tests/__pycache__
+downloader/__pycache__
+
+env
+htmlcov
+
+.coverage

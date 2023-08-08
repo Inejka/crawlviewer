@@ -2,17 +2,18 @@ import json
 import os
 import sqlite3
 from abc import ABC, abstractclassmethod
+from threading import Lock
 from typing import Any
 
 from utils.basic_structures import TelegraphUrl
 
 
-class databaseWorder:
+class DatabaseWorder:
     def __init__(self, db_path: str) -> None:
         self._db_path = db_path
         self._is_initialized = os.path.exists(self._db_path)
-        self._con = sqlite3.connect(self._db_path)
-
+        self._con = sqlite3.connect(self._db_path, check_same_thread=False)
+        self._operation_lock = Lock()
         if not self._is_initialized:
             self.__initialize()
 
@@ -34,8 +35,20 @@ class databaseWorder:
         self._con.commit()
 
     def insert(self, *args: Any) -> None:
-        self._InsertQuerryFabric(args).execute()
-        self._con.commit()
+        with self._operation_lock:
+            self._InsertQuerryFabric(args).execute()
+            self._con.commit()
+
+    def has_row_with_name(self, name: str) -> bool:
+        return (
+            self._con.cursor()
+            .execute(
+                "SELECT page_name FROM pages WHERE page_name=(?)",
+                (name,),
+            )
+            .fetchone()
+            is not None
+        )
 
     class _InsertQuerry(ABC):
         def __init__(self, cur: sqlite3.Cursor, *args: Any) -> None:

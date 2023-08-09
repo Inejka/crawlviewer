@@ -8,7 +8,6 @@ import pytest
 from database.database_worker import DatabaseWorder
 from downloader.site_saver import (
     DataProvider,
-    DefaultProvider,
     SiteSaver,
     TelegraphProvider,
     TextProvider,
@@ -50,12 +49,6 @@ def test_data_provider() -> None:
 def test_text_provider() -> None:
     provider = TextProvider("i need to return")
     assert provider.provide() == "i need to return"
-
-
-def test_default_provider() -> None:
-    provider = DefaultProvider()
-    print(provider.provide())
-    assert provider.provide() != ""
 
 
 def test_url_provider() -> None:

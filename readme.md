@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/Inejka/crawlviewer/branch/main/graph/badge.svg?token=EZJG8ZB0IS)](https://codecov.io/gh/Inejka/crawlviewer)
 # About
 The main purpose of this project is to give you a simple app to save a bunch of sites on your hard drive and then view them easily. Maybe later I will add the ability to start crawlers from this app. 
 # Currently supported crawlers

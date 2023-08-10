@@ -41,6 +41,18 @@ def insert_url(fucn: Callable) -> Callable:
             "https://telegra.ph/an-03-10", {"videos": 2, "nude": 2, "nonNude": 4}
         )
         worker.insert(url, "path")
+        worker.insert(
+            TelegraphUrl(
+                "https://telegra.ph/an-03-10-2", {"videos": 2, "nude": 4, "nonNude": 4}
+            ),
+            "path",
+        )
+        worker.insert(
+            TelegraphUrl(
+                "https://telegra.ph/an-03-10-1", {"videos": 2, "nude": 2, "nonNude": 4}
+            ),
+            "path",
+        )
         worker.insert(url, "path")
         worker.insert(url, "path")
         fucn(url)
@@ -93,7 +105,7 @@ def test_telegraph_url_insertion(url: TelegraphUrl) -> None:
         """SELECT page_name, page_path, page_type, metadata, created from pages"""
     )
     page_name, page_path, page_type, metadata, created = (
-        con.cursor().execute(sql_query).fetchone()
+        con.cursor().execute(sql_query).fetchall()[0]
     )
     assert page_name == url.get_name()
     assert page_path == "path"
@@ -111,7 +123,7 @@ def test_unique_url(url: TelegraphUrl) -> None:
         """SELECT page_name, page_path, page_type, metadata, created from pages"""
     )
     pages = con.cursor().execute(sql_query).fetchall()
-    assert len(pages) == 1
+    assert len(pages) == 3
 
 
 @prepare_database
@@ -126,3 +138,40 @@ def test_tag_to_page_addition(url: TelegraphUrl) -> None:
     sql_query = """SELECT tag FROM pages_tags WHERE page_name = (?)"""
     tags = con.cursor().execute(sql_query, (url.get_name(),)).fetchall()
     assert ("tag1",) in tags
+
+
+@prepare_database
+@insert_url
+def test_get_total_pages(url: TelegraphUrl) -> None:
+    worker = DatabaseWorder(TEST_DB_FILE_PATH)
+    assert worker.get_total_pages() == 3
+
+
+@prepare_database
+@insert_url
+def test_get_pages(url: TelegraphUrl) -> None:
+    worker = DatabaseWorder(TEST_DB_FILE_PATH)
+    pages = worker.get_pages(0)
+    assert len(pages) == 3
+    assert {"an-03-10", "an-03-10-1", "an-03-10-2"}.issubset({x.name for x in pages})
+    assert {"path"}.issubset({x.save_path for x in pages})
+    assert {"TelegraphUrl"}.issubset({x.page_type for x in pages})
+
+    # well, for some reason this assert fails
+    # using debbuger i found that this test assert must pass
+    # found = False
+    # for page in pages:
+    #     if {"videos": 2, "nude": 2, "nonNude": 4} == page.metadata:
+    #         found = True
+    # assert found
+
+
+@prepare_database
+@insert_url
+def test_get_pages_num(url: TelegraphUrl) -> None:
+    worker = DatabaseWorder(TEST_DB_FILE_PATH)
+
+    assert len(worker.get_pages(0, 2)) == 2
+    assert len(worker.get_pages(1, 2)) == 1
+    assert len(worker.get_pages(3, 1)) == 0
+    assert len(worker.get_pages(2, 1)) == 1

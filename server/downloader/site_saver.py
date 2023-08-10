@@ -75,7 +75,7 @@ class SiteSaver(Thread):
         db_worker: DatabaseWorder,
         url_provider: UrlProvider,
         max_parrarel_downloads: int = 3,
-        download_folder: str = os.path.join("server", "data"),
+        download_folder: str = os.path.join("data"),
     ) -> None:
         super().__init__()
         self._db_worker = db_worker

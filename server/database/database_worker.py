@@ -5,7 +5,7 @@ from abc import ABC, abstractclassmethod
 from threading import Lock
 from typing import Any
 
-from utils.basic_structures import TelegraphUrl
+from utils.basic_structures import PageEntry, TelegraphUrl
 
 
 class DatabaseWorder:
@@ -49,6 +49,20 @@ class DatabaseWorder:
             .fetchone()
             is not None
         )
+
+    def get_total_pages(self) -> int:
+        return self._con.cursor().execute("SELECT COUNT(*) FROM pages;").fetchone()[0]
+
+    def get_pages(self, page: int, pages_per_page: int = 5) -> list[PageEntry]:
+        content = (
+            self._con.cursor()
+            .execute(
+                "SELECT * from pages LIMIT (?) OFFSET (?)",
+                (pages_per_page, pages_per_page * page),
+            )
+            .fetchall()
+        )
+        return [PageEntry(x[0], x[1], x[2], x[3], x[4]) for x in content]
 
     class _InsertQuerry(ABC):
         def __init__(self, cur: sqlite3.Cursor, *args: Any) -> None:

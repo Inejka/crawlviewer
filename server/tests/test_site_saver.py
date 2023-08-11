@@ -45,6 +45,7 @@ def prepare_database() -> SiteSaver:
         saver_tmp.start()
         saver_tmp.join()
     yield saver
+    worker._con.close()
     os.remove(TEST_DB_FILE_PATH)
     shutil.rmtree(TEST_DATA_FOLDER_PATH)
 

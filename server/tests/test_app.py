@@ -34,6 +34,7 @@ def setup() -> Any:
     yield app.app.test_client()
     if os.path.exists(os.path.join("server", "data")):
         rmtree(os.path.join("server", "data"))
+    app.worker._con.close()
     if os.path.exists(os.path.join("server", "sites.db")):
         os.remove(os.path.join("server", "sites.db"))
 

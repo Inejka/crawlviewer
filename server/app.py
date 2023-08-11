@@ -21,7 +21,8 @@ worker = DatabaseWorder(os.path.join("server", "sites.db"))
 def get_page_and_resources(page_name: str, resource_name: str) -> Any:
     if resource_name == "html":
         with open(
-            os.path.join("server", "data", page_name, page_name + ".html")
+            os.path.join("server", "data", page_name, page_name + ".html"),
+            encoding="UTF-8"
         ) as file:
             return render_template_string(file.read())
     else:

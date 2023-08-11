@@ -24,7 +24,6 @@ TEST_FILE = """
 
     """
 
-# TODO replace with fixtures
 TEST_DB_FILE_PATH = os.path.join("server", "tests", "site_saver_tmp.db")
 TEST_DATA_FOLDER_PATH = os.path.join("server", "tests", "site_saver_data")
 

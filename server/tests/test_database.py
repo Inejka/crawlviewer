@@ -11,7 +11,6 @@ from utils.basic_structures import TelegraphUrl
 TEST_DB_FILE_PATH = os.path.join("server", "tests", "database_tmp.db")
 
 
-# TODO replace with fixtures
 @pytest.fixture(scope="session", autouse=True)
 def _prepare_database() -> None:
     DatabaseWorder(TEST_DB_FILE_PATH)
@@ -149,3 +148,9 @@ def test_get_pages_num(insert_url: TelegraphUrl) -> None:
     assert len(worker.get_pages(1, 2)) == 1
     assert len(worker.get_pages(3, 1)) == 0
     assert len(worker.get_pages(2, 1)) == 1
+
+
+def test_insert_exception() -> None:
+    worker = DatabaseWorder(TEST_DB_FILE_PATH)
+    with pytest.raises(RuntimeError):
+        worker.insert(None)

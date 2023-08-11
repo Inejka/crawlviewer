@@ -21,15 +21,6 @@ class TextProvider(DataProvider):
         return self._file_path
 
 
-class DefaultProvider(DataProvider):
-    def __init__(self) -> None:
-        super().__init__("/tmp/run/log.txt")
-
-    def provide(self) -> str:
-        with open(self._file_path, encoding="utf-8") as file:
-            return file.read()
-
-
 class UrlProvider(ABC):
     def __init__(self, provider: DataProvider) -> None:
         self._provider = provider
@@ -150,4 +141,3 @@ class SiteSaver(Thread):
         match urls[0]:
             case TelegraphUrl():
                 return self._DownloaderTelegraph
-        raise RuntimeError("Dowloader was not implemented")

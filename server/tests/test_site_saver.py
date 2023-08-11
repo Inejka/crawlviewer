@@ -1,7 +1,6 @@
 import os
 import shutil
 import sqlite3
-from collections.abc import Callable
 
 import pytest
 
@@ -26,19 +25,29 @@ TEST_FILE = """
     """
 
 # TODO replace with fixtures
-TEST_DB_FILE_PATH = os.path.join("server", "tests", "tmp.db")
-TEST_DATA_FOLDER_PATH = os.path.join("server", "tests", "data")
+TEST_DB_FILE_PATH = os.path.join("server", "tests", "site_saver_tmp.db")
+TEST_DATA_FOLDER_PATH = os.path.join("server", "tests", "site_saver_data")
 
 
-def prepare_database(func: Callable) -> Callable:
-    def inner() -> None:
-        if os.path.exists(TEST_DB_FILE_PATH):
-            os.remove(TEST_DB_FILE_PATH)
-        DatabaseWorder(TEST_DB_FILE_PATH)
-        func()
-        os.remove(TEST_DB_FILE_PATH)
+@pytest.fixture(scope="session")
+def prepare_database() -> SiteSaver:
+    DatabaseWorder(TEST_DB_FILE_PATH)
+    worker = DatabaseWorder(TEST_DB_FILE_PATH)
+    url_provider = TelegraphProvider(TextProvider(TEST_FILE))
+    saver = SiteSaver(worker, url_provider, download_folder=TEST_DATA_FOLDER_PATH)
 
-    return inner
+    saver.start()
+    saver.join()
+    for _ in range(3):
+        saver_tmp = SiteSaver(
+            worker, url_provider, download_folder=TEST_DATA_FOLDER_PATH
+        )
+
+        saver_tmp.start()
+        saver_tmp.join()
+    yield saver
+    os.remove(TEST_DB_FILE_PATH)
+    shutil.rmtree(TEST_DATA_FOLDER_PATH)
 
 
 def test_data_provider() -> None:
@@ -103,16 +112,7 @@ def test_telegraph_provider_multiple() -> None:
     assert parsed[1].url == "https://telegra.ph/a-07-22-7"
 
 
-@prepare_database
-def test_telegraph_saver() -> None:
-    worker = DatabaseWorder(TEST_DB_FILE_PATH)
-    url_provider = TelegraphProvider(TextProvider(TEST_FILE))
-    for _ in range(3):
-        saver = SiteSaver(worker, url_provider, download_folder=TEST_DATA_FOLDER_PATH)
-
-        saver.start()
-        saver.join()
-
+def test_telegraph_saver(prepare_database: SiteSaver) -> None:
     assert os.path.exists(os.path.join(TEST_DATA_FOLDER_PATH, "an-03-10"))
     assert os.path.exists(os.path.join(TEST_DATA_FOLDER_PATH, "a-07-22-7"))
 
@@ -123,16 +123,7 @@ def test_telegraph_saver() -> None:
     pages = con.cursor().execute(sql_query).fetchall()
     assert len(pages) == 2
 
-    shutil.rmtree(TEST_DATA_FOLDER_PATH)
 
-
-@prepare_database
-def test_saver_stats() -> None:
-    worker = DatabaseWorder(TEST_DB_FILE_PATH)
-    url_provider = TelegraphProvider(TextProvider(TEST_FILE))
-    saver = SiteSaver(worker, url_provider, download_folder=TEST_DATA_FOLDER_PATH)
-
-    saver.start()
-    saver.join()
-    assert saver.get_finished_downloads() == 2
-    assert saver.get_total_pages_to_save() == 2
+def test_saver_stats(prepare_database: SiteSaver) -> None:
+    assert prepare_database.get_finished_downloads() == 2
+    assert prepare_database.get_total_pages_to_save() == 2

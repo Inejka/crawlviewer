@@ -9,7 +9,7 @@ from utils.basic_structures import TelegraphUrl
 
 TEST_DB_FILE_PATH = os.path.join("server", "tests", "tmp.db")
 
-
+# TODO replace with fixtures
 def prepare_database(func: Callable) -> Callable:
     def inner() -> None:
         if os.path.exists(TEST_DB_FILE_PATH):

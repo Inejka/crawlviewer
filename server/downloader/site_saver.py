@@ -75,7 +75,7 @@ class SiteSaver(Thread):
         db_worker: DatabaseWorder,
         url_provider: UrlProvider,
         max_parrarel_downloads: int = 3,
-        download_folder: str = os.path.join("data"),
+        download_folder: str = os.path.join("server", "data"),
     ) -> None:
         super().__init__()
         self._db_worker = db_worker
@@ -84,15 +84,16 @@ class SiteSaver(Thread):
         self._started_threads = SafeCounter()
         self._finished_threads = SafeCounter()
         self._parrarel_downloads_counter = BoundedSemaphore(max_parrarel_downloads)
+        self._total_pages_to_save = 0
 
         if not os.path.exists(download_folder):
             os.mkdir(download_folder)
 
     def run(self) -> None:
         urls = self._url_provider.provide()
+        self._total_pages_to_save = len(urls)
         download_class = self._get_downloader(urls)
         threads = []
-        # TODO insert only unique
         for url in urls:
             if not self._db_worker.has_row_with_name(url.get_name()):
                 self._parrarel_downloads_counter.acquire()
@@ -110,6 +111,12 @@ class SiteSaver(Thread):
                 threads.append(th)
         for thread in threads:
             thread.join()
+
+    def get_total_pages_to_save(self) -> int:
+        return self._total_pages_to_save
+
+    def get_finished_downloads(self) -> int:
+        return self._finished_threads.get()
 
     class _DownloaderThread(Thread):
         def __init__(

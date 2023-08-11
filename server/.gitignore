@@ -2,8 +2,9 @@ __pycache__
 database/__pycache__
 tests/__pycache__
 downloader/__pycache__
+data
 
 env
 htmlcov
-
+sites.db
 .coverage

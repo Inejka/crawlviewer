@@ -25,7 +25,7 @@ TEST_FILE = """
 
     """
 
-
+# TODO replace with fixtures
 TEST_DB_FILE_PATH = os.path.join("server", "tests", "tmp.db")
 TEST_DATA_FOLDER_PATH = os.path.join("server", "tests", "data")
 
@@ -124,3 +124,15 @@ def test_telegraph_saver() -> None:
     assert len(pages) == 2
 
     shutil.rmtree(TEST_DATA_FOLDER_PATH)
+
+
+@prepare_database
+def test_saver_stats() -> None:
+    worker = DatabaseWorder(TEST_DB_FILE_PATH)
+    url_provider = TelegraphProvider(TextProvider(TEST_FILE))
+    saver = SiteSaver(worker, url_provider, download_folder=TEST_DATA_FOLDER_PATH)
+
+    saver.start()
+    saver.join()
+    assert saver.get_finished_downloads() == 2
+    assert saver.get_total_pages_to_save() == 2

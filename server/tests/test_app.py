@@ -6,10 +6,6 @@ from typing import Any
 import pytest
 from flask.testing import FlaskClient
 
-# VERY IMPORTANT MESSAGE
-# THIS TEST WILL ERASE YOUR DATA FOLDER AND database
-# DO NOT RUN THEESE IF YOU ALREADY HAVE SOME DATA
-
 TEST_FILE = """
     INTERESTING (2 video) https://telegra.ph/an-03-10
         Nude: 2 non-nude: 4
@@ -20,23 +16,28 @@ TEST_FILE = """
         Total video: 2
 
     """
+TEST_DB_PATH = os.path.join("server", "tests", "ta_db.db")
+TEST_DATA_PATH = os.path.join("server", "tests", "ta_data")
 
 
 @pytest.fixture(scope="session")
 def setup() -> Any:
-    import app
+    from app import InnerApp
 
-    app.app.config.update(
+    inner_app = InnerApp(TEST_DB_PATH, TEST_DATA_PATH)
+    app = inner_app.get_app()
+
+    app.config.update(
         {
             "TESTING": True,
         }
     )
-    yield app.app.test_client()
-    if os.path.exists(os.path.join("server", "data")):
-        rmtree(os.path.join("server", "data"))
-    app.worker._con.close()
-    if os.path.exists(os.path.join("server", "sites.db")):
-        os.remove(os.path.join("server", "sites.db"))
+    yield app.test_client()
+    inner_app._worker._con.close()
+    if os.path.exists(TEST_DATA_PATH):
+        rmtree(TEST_DATA_PATH)
+    if os.path.exists(TEST_DB_PATH):
+        os.remove(TEST_DB_PATH)
 
 
 @pytest.fixture(scope="session")
@@ -60,8 +61,8 @@ def insert_file(setup: FlaskClient) -> Any:
 def test_save_bunch(insert_file: tuple) -> None:
     response, client = insert_file
     assert response.status_code == 200
-    assert os.path.exists(os.path.join("server", "data", "an-03-10"))
-    assert os.path.exists(os.path.join("server", "data", "a-07-22-7"))
+    assert os.path.exists(os.path.join(TEST_DATA_PATH, "an-03-10"))
+    assert os.path.exists(os.path.join(TEST_DATA_PATH, "a-07-22-7"))
 
 
 def test_page_providing(insert_file: tuple) -> None:
@@ -96,3 +97,17 @@ def test_unsupported_provider(insert_file: tuple) -> None:
         },
     )
     assert response.json == "Unsupported provider"
+
+
+def test_get_app() -> None:
+    from app import create_app
+
+    app = create_app()
+    app.config.update(
+        {
+            "TESTING": True,
+        }
+    )
+    test = app.test_client()
+    respone_temp = test.get("/save/status")
+    assert respone_temp.status_code == 200

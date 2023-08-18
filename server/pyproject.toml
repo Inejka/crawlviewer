@@ -14,3 +14,4 @@ line-length = 120
 
 [tool.ruff.extend-per-file-ignores]
 "test_*" = ["S101"]
+"app.py" = ["F401"]

@@ -111,3 +111,9 @@ def test_get_app() -> None:
     test = app.test_client()
     respone_temp = test.get("/save/status")
     assert respone_temp.status_code == 200
+
+
+def test_get_available_providers(insert_file: tuple) -> None:
+    response, client = insert_file
+    response = client.get("/available_providers")
+    assert "TelegraphProvider" in response.json

@@ -5,7 +5,12 @@ from flask import Flask, jsonify, render_template_string, request, send_from_dir
 from flask_cors import CORS
 
 from database.database_worker import DatabaseWorder
-from downloader.site_saver import SiteSaver, TelegraphProvider, TextProvider
+from downloader.site_saver import (
+    SiteSaver,
+    TelegraphProvider,
+    TextProvider,
+    UrlProvider,
+)
 
 # instantiate the app
 
@@ -45,11 +50,10 @@ class InnerApp:
             post_data = request.get_json()
             type = post_data.get("crawler_type")
             text = post_data.get("text")
-            match type:
-                case "TelegraphProvider":
-                    url_provider = TelegraphProvider(TextProvider(text))
-                case _:
-                    return jsonify("Unsupported provider")
+            if type in self.available_providers():
+                url_provider = globals()[type](TextProvider(text))
+            else:
+                return jsonify("Unsupported provider")
             saver = SiteSaver(
                 self._worker, url_provider, download_folder=self._data_path
             )
@@ -80,6 +84,13 @@ class InnerApp:
                     page, pages_per_page if pages_per_page is not None else 5
                 )
             )
+
+        @self._app.route("/available_providers", methods=["get"])
+        def get_available_providers() -> Any:
+            return jsonify(self.available_providers())
+
+    def available_providers(self) -> list[str]:
+        return [str(x.__name__) for x in UrlProvider.__subclasses__()]
 
     def get_app(self) -> Flask:
         return self._app

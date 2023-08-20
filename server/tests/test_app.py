@@ -68,8 +68,8 @@ def test_save_bunch(insert_file: tuple) -> None:
 def test_page_providing(insert_file: tuple) -> None:
     response, client = insert_file
     assert response.status_code == 200
-    assert client.get("/site/an-03-10/html").status_code == 200
-    assert client.get("/site/a-07-22-7/html").status_code == 200
+    assert client.get("/site/an-03-10/an-03-10.html").status_code == 200
+    assert client.get("/site/a-07-22-7/a-07-22-7.html").status_code == 200
     assert client.get("/site/an-03-10/quill.core.min.css").status_code == 200
     assert client.get("/site/a-07-22-7/quill.core.min.css").status_code == 200
 

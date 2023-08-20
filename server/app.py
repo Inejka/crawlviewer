@@ -34,16 +34,9 @@ class InnerApp:
 
         @self._app.route("/site/<page_name>/<resource_name>", methods=["GET"])
         def get_page_and_resources(page_name: str, resource_name: str) -> Any:
-            if resource_name == "html":
-                with open(
-                    os.path.join(self._data_path, page_name, page_name + ".html"),
-                    encoding="UTF-8",
-                ) as file:
-                    return render_template_string(file.read())
-            else:
-                return send_from_directory(
-                    os.path.join("../", self._data_path, page_name), resource_name
-                )
+            return send_from_directory(
+                os.path.join("../", self._data_path, page_name), resource_name
+            )
 
         @self._app.route("/save", methods=["POST"])
         def save_bunch() -> Any:

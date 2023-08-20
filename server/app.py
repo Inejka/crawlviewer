@@ -79,11 +79,7 @@ class InnerApp:
             post_data = request.get_json()
             page = post_data.get("page")
             pages_per_page = post_data.get("pages_per_page")
-            return jsonify(
-                self._worker.get_pages(
-                    page, pages_per_page if pages_per_page is not None else 5
-                )
-            )
+            return jsonify(self._worker.get_pages(page, pages_per_page))
 
         @self._app.route("/available_providers", methods=["get"])
         def get_available_providers() -> Any:

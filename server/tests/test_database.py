@@ -129,7 +129,6 @@ def test_get_pages(insert_url: TelegraphUrl) -> None:
     pages = worker.get_pages(0)
     assert len(pages) == 3
     assert {"an-03-10", "an-03-10-1", "an-03-10-2"}.issubset({x.name for x in pages})
-    assert {"path"}.issubset({x.save_path for x in pages})
     assert {"TelegraphUrl"}.issubset({x.page_type for x in pages})
 
     # well, for some reason this assert fails

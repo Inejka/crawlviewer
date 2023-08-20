@@ -42,7 +42,6 @@ class SafeCounter:
 @dataclass
 class PageEntry:
     name: str
-    save_path: str
     page_type: str
     metadata: dict
     created: date

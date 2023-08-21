@@ -35,7 +35,7 @@ class TelegraphProvider(UrlProvider):
         to_return = []
         newEntry = None
         for line in self._provider.provide().split("\n"):
-            if len(line) == 0:
+            if len(line.strip()) == 0:
                 if newEntry is not None:
                     to_return.append(newEntry)
                     newEntry = None

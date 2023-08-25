@@ -11,7 +11,9 @@
         />
         <el-table
           :data="tableData"
-          style="width: 100%; max-height: 60%; min-height: 60%"
+          style="width: 100%"
+          height="70vh"
+          max-height="70vh"
           :border="true"
           :cell-style="{ textAlign: 'center' }"
           :header-cell-style="{ textAlign: 'center' }"
@@ -19,8 +21,8 @@
           @current-change="handleCurrentChange"
           ref="singleTableRef"
         >
-          <el-table-column prop="name" label="Name" style="width: 25%" />
-          <el-table-column prop="metadata" label="Metadata" style="width: 30%" />
+          <el-table-column prop="name" label="Name" fixed width="200px" />
+          <el-table-column prop="metadata" label="Metadata" style="width: 30%"/>
           <el-table-column prop="created" label="Downloading date" style="width: 20%" />
           <el-table-column prop="page_type" label="Source" style="width: 25%" />
         </el-table>

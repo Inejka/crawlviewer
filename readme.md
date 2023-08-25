@@ -57,3 +57,5 @@ npm install
 
       chmod +x run.sh
       ./run.sh
+
+  Then visit [http://localhost:5173/](http://localhost:5173/)

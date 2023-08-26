@@ -12,7 +12,11 @@ The main purpose of this project is to give you a simple app to save a bunch of 
  - [nudecrawler](https://github.com/yaroslaff/nudecrawler)
  
 # Installation
-
+Recommended (and most secure) way is using docker:
+```sh
+docker run --rm -v PAH_TO_YOUR_FOLDER_TO_STORE_DATA:/work -it -p 5173:5173 -p 5000:5000  inejka/crawlviewer:dev       
+```
+Then visit [http://localhost:5173/](http://localhost:5173/)
 ## Requirements
 - python
 - npm 
@@ -59,3 +63,9 @@ npm install
       ./run.sh
 
   Then visit [http://localhost:5173/](http://localhost:5173/)
+
+# Docker
+Build you own docker image via:
+```sh
+docker build -t user/app:tag -f docker/Dockerfile .      
+```

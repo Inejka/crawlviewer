@@ -5,7 +5,7 @@ RUN apk add --no-cache python3 py3-pip
 
 WORKDIR /
 ADD . /
-RUN pip install -r /server/requirements.txt
+RUN pip install --no-cache-dir -r /server/requirements.txt
 
 WORKDIR /client
 RUN npm install

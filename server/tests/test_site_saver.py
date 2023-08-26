@@ -20,9 +20,7 @@ TEST_FILE = """
 
     INTERESTING https://telegra.ph/a-07-22-7 (15.58s)
         Nude: 0 (0 new) non-nude: 10 (10 new)
-        Total video: 2
-
-    """
+        Total video: 2"""
 
 TEST_DB_FILE_PATH = os.path.join("server", "tests", "site_saver_tmp.db")
 TEST_DATA_FOLDER_PATH = os.path.join("server", "tests", "site_saver_data")

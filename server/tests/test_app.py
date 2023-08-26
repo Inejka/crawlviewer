@@ -16,15 +16,16 @@ TEST_FILE = """
         Total video: 2
 
     """
-TEST_DB_PATH = os.path.join("server", "tests", "ta_db.db")
-TEST_DATA_PATH = os.path.join("server", "tests", "ta_data")
+TEST_APP_PATH = os.path.join("server", "tests", "app_test")
+TEST_DB_NAME = "ta_db.db"
+TEST_DATA_NAME = "ta_data"
 
 
 @pytest.fixture(scope="session")
 def setup() -> Any:
     from app import InnerApp
 
-    inner_app = InnerApp(TEST_DB_PATH, TEST_DATA_PATH)
+    inner_app = InnerApp(TEST_APP_PATH, TEST_DB_NAME, TEST_DATA_NAME)
     app = inner_app.get_app()
 
     app.config.update(
@@ -34,10 +35,8 @@ def setup() -> Any:
     )
     yield app.test_client()
     inner_app._worker._con.close()
-    if os.path.exists(TEST_DATA_PATH):
-        rmtree(TEST_DATA_PATH)
-    if os.path.exists(TEST_DB_PATH):
-        os.remove(TEST_DB_PATH)
+    if os.path.exists(TEST_APP_PATH):
+        rmtree(TEST_APP_PATH)
 
 
 @pytest.fixture(scope="session")
@@ -61,8 +60,8 @@ def insert_file(setup: FlaskClient) -> Any:
 def test_save_bunch(insert_file: tuple) -> None:
     response, client = insert_file
     assert response.status_code == 200
-    assert os.path.exists(os.path.join(TEST_DATA_PATH, "an-03-10"))
-    assert os.path.exists(os.path.join(TEST_DATA_PATH, "a-07-22-7"))
+    assert os.path.exists(os.path.join(TEST_APP_PATH, TEST_DATA_NAME, "an-03-10"))
+    assert os.path.exists(os.path.join(TEST_APP_PATH, TEST_DATA_NAME, "a-07-22-7"))
 
 
 def test_page_providing(insert_file: tuple) -> None:

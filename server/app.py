@@ -21,16 +21,17 @@ from downloader.site_saver import (
 class InnerApp:
     def __init__(
         self,
-        db_path: str = os.path.join("work", "sites.db"),
-        data_path: str = os.path.join("work", "data"),
+        workdir_path: str = "work",
+        db_name: str = "sites.db",
+        data_name: str = "data",
     ) -> None:
         self._downloads_thread = []
 
-        if not os.path.exists("work"):
-            os.mkdir("work")
+        if not os.path.exists(workdir_path):
+            os.mkdir(workdir_path)
 
-        self._db_path = db_path
-        self._data_path = data_path
+        self._db_path = os.path.join(workdir_path, db_name)
+        self._data_path = os.path.join(workdir_path, data_name)
         self._worker = DatabaseWorder(self._db_path)
         self._app = Flask(__name__)
         CORS(self._app, resources={r"/*": {"origins": "*"}})

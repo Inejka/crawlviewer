@@ -100,6 +100,8 @@ class SiteSaver(Thread):
                 )
                 th.start()
                 threads.append(th)
+            else:
+                self._finished_threads.inc()
         for thread in threads:
             thread.join()
 

@@ -24,12 +24,21 @@
     <el-button id="submit" class="ml-3" type="success" @click="submitUpload">
       upload to server
     </el-button>
-    <el-text class="mx-1" type="info" style="padding-top: 50px; font-size: x-large"
+    <el-text
+      class="mx-1"
+      type="info"
+      style="padding-top: 25px; font-size: x-large; padding-bottom: 25px"
       >Downloads status</el-text
     >
-    <el-table :data="tableData" style="width: 100%; padding-top: 10px">
+    <el-table
+      :data="tableData"
+      style="width: 100%; padding-top: 10px"
+      :cell-style="{ textAlign: 'center' }"
+      :header-cell-style="{ textAlign: 'center' }"
+    >
       <el-table-column prop="total_pages" label="Total pages to download" style="width: 50%" />
-      <el-table-column prop="saved_pages" label="Downloaded pages" />
+      <el-table-column prop="total_pages" label="" width="50px"/>
+      <el-table-column prop="saved_pages" label="Downloaded pages" style="width: 50%" />
     </el-table>
   </div>
 </template>
@@ -46,8 +55,8 @@ const fileList = ref<UploadUserFile[]>([])
 const upload = ref<UploadInstance>()
 const store = useBackUrlStore()
 interface Provider {
-  value: any;
-  label: any;
+  value: any
+  label: any
 }
 const available_providers = ref<Provider[]>([])
 const value = ref('')
@@ -66,8 +75,8 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 }
 
 const updateDownloadStatus = async () => {
-    const response = await axios.get(store.back_url + 'save/status')
-    tableData.value = response.data
+  const response = await axios.get(store.back_url + 'save/status')
+  tableData.value = response.data
 }
 
 const submitUpload = async () => {

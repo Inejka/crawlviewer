@@ -55,7 +55,7 @@ npm install
 # Run
 - windows
       
-      just run run.bat
+      ./run.bat
 
 - linux
 

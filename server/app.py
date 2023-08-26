@@ -21,10 +21,14 @@ from downloader.site_saver import (
 class InnerApp:
     def __init__(
         self,
-        db_path: str = os.path.join("server", "sites.db"),
-        data_path: str = os.path.join("server", "data"),
+        db_path: str = os.path.join("work", "sites.db"),
+        data_path: str = os.path.join("work", "data"),
     ) -> None:
         self._downloads_thread = []
+
+        if not os.path.exists("work"):
+            os.mkdir("work")
+
         self._db_path = db_path
         self._data_path = data_path
         self._worker = DatabaseWorder(self._db_path)

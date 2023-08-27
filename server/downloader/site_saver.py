@@ -1,7 +1,8 @@
 import os
 import re
 from abc import ABC, abstractclassmethod
-from threading import BoundedSemaphore, Thread
+from multiprocessing.pool import ThreadPool
+from threading import Thread
 
 from database.database_worker import DatabaseWorder
 from utils.basic_structures import BasicUrl, SafeCounter, TelegraphUrl
@@ -75,9 +76,8 @@ class SiteSaver(Thread):
         self._db_worker = db_worker
         self._url_provider = url_provider
         self._download_folder = download_folder
-        self._started_threads = SafeCounter()
         self._finished_threads = SafeCounter()
-        self._parrarel_downloads_counter = BoundedSemaphore(max_parrarel_downloads)
+        self._max_parrarel_downloads = max_parrarel_downloads
         self._total_pages_to_save = 0
 
         if not os.path.exists(download_folder):
@@ -86,27 +86,27 @@ class SiteSaver(Thread):
     def run(self) -> None:
         urls = self._url_provider.provide()
         self._total_pages_to_save = len(urls)
-        download_class = self._get_downloader(urls)
-        threads = []
-        for url in urls:
-            if not self._db_worker.has_row_with_name(url.get_name()):
-                self._parrarel_downloads_counter.acquire()
-                th = download_class(
-                    self._download_folder,
-                    self._finished_threads,
-                    self._parrarel_downloads_counter,
+
+        def process_urls(url: BasicUrl) -> None:
+            if not process_urls.db_worker.has_row_with_name(url.get_name()):
+                th = process_urls.download_class(
+                    process_urls.download_folder,
+                    process_urls.finished_threads,
                     url,
                 )
-                self._started_threads.inc()
-                self._db_worker.insert(
-                    url, os.path.join(self._download_folder, url.get_name())
+                process_urls.db_worker.insert(
+                    url, os.path.join(process_urls.download_folder, url.get_name())
                 )
-                th.start()
-                threads.append(th)
+                th.run()
             else:
-                self._finished_threads.inc()
-        for thread in threads:
-            thread.join()
+                process_urls.finished_threads.inc()
+
+        process_urls.download_class = self._get_downloader(urls)
+        process_urls.db_worker = self._db_worker
+        process_urls.finished_threads = self._finished_threads
+        process_urls.download_folder = self._download_folder
+        pool = ThreadPool(self._max_parrarel_downloads)
+        pool.map(process_urls, urls)
 
     def get_total_pages_to_save(self) -> int:
         return self._total_pages_to_save
@@ -114,24 +114,20 @@ class SiteSaver(Thread):
     def get_finished_downloads(self) -> int:
         return self._finished_threads.get()
 
-    class _DownloaderThread(Thread):
+    class _DownloaderThread:
         def __init__(
             self,
             download_folder: str,
             finished_counter: SafeCounter,
-            to_release: BoundedSemaphore,
             url: BasicUrl,
         ) -> None:
-            super().__init__()
             self._download_folder = download_folder
             self._finished_counter = finished_counter
-            self._to_release = to_release
             self._url = url
 
         def run(self) -> None:
             self._download()
             self._finished_counter.inc()
-            self._to_release.release()
 
         @abstractclassmethod
         def _download(self) -> None:

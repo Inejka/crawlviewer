@@ -40,19 +40,22 @@ class TelegraphProvider(UrlProvider):
                     to_return.append(newEntry)
                     newEntry = None
                 continue
-            if "INTERESTING" in line:
+            if "INTERESTING" in line and "http" in line:
                 newEntry = TelegraphUrl()
                 for word in line.split(" "):
                     if "http" in word:
                         newEntry.url = word
                         break
+                continue
             if "Nude" in line:
                 newEntry.metadata["nude"] = int(re.findall(r"\d+", line)[0])
                 newEntry.metadata["nonNude"] = int(
                     re.findall(r"\d+", line[line.find("non-nude") :])[0]
                 )
+                continue
             if "Total video" in line:
                 newEntry.metadata["videos"] = int(re.findall(r"\d+", line)[0])
+                continue
 
         if newEntry is not None:
             to_return.append(newEntry)

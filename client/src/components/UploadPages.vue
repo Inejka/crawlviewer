@@ -37,7 +37,7 @@
       :header-cell-style="{ textAlign: 'center' }"
     >
       <el-table-column prop="total_pages" label="Total pages to download" style="width: 50%" />
-      <el-table-column prop="total_pages" label="" width="50px"/>
+      <el-table-column prop="" label="" width="50px"/>
       <el-table-column prop="saved_pages" label="Downloaded pages" style="width: 50%" />
     </el-table>
   </div>

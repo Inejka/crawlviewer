@@ -105,8 +105,8 @@ class SiteSaver(Thread):
         process_urls.db_worker = self._db_worker
         process_urls.finished_threads = self._finished_threads
         process_urls.download_folder = self._download_folder
-        pool = ThreadPool(self._max_parrarel_downloads)
-        pool.map(process_urls, urls)
+        with ThreadPool(self._max_parrarel_downloads) as pool:
+            pool.map(process_urls, urls)
 
     def get_total_pages_to_save(self) -> int:
         return self._total_pages_to_save
